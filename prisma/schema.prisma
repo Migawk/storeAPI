@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  password  String
+  role      String   @default("user")
+  email     String?  @unique
+  phone     String?  @unique
+  createdAt DateTime @default(now())
+
+  interested Catalogue[]
+  Order      Order[]
+  Product    Product[]
+  Review     Review[]
+  Shipping   Shipping[]
+}
+
+model Catalogue {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  logo        String
+  description String
+  createdAt   DateTime @default(now())
+  href        String   @unique
+
+  interestedUsers User[]
+  products        Product[]
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  photos      Json
+  description String
+  href        String   @unique
+  createdAt   DateTime @default(now())
+  rate        Int      @default(0)
+
+  status        String @default("available")
+  stockQuantity Int
+  price         Int
+
+  Catalogue   Catalogue @relation(fields: [catalogueId], references: [id])
+  catalogueId Int
+
+  seller User     @relation(fields: [userId], references: [id])
+  userId Int
+  Review Review[]
+}
+
+model Review {
+  id      Int    @id @default(autoincrement())
+  title   String
+  content String
+  rate    Int
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
+
+model Order {
+  id           Int      @id @default(autoincrement())
+  info         Json
+  priceTotally Int
+  createdAt    DateTime @default(now())
+
+  user     User       @relation(fields: [userId], references: [id])
+  userId   Int
+  Shipping Shipping[]
+}
+
+model Shipping {
+  id        Int      @id @default(autoincrement())
+  adress    String
+  city      String
+  zipCode   String
+  country   String
+  phone     String
+  email     String
+  company   String
+  track     String?  @unique
+  firstName String
+  lastName  String
+  createdAt DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
+}
