@@ -7,13 +7,15 @@ import { hasRole } from "../middleware/auth";
 
 const catalogueController = new Hono();
 
-const createCatalogue = z.object({
+const createCatalogueSchema = z.object({
 	name: z.string(),
 	logo: z.string(),
 	description: z.string(),
-	href: z.string(),
+	slug: z.string(),
 });
-const updateCatalogue = z.object({
+export type TCreateCatalogueSchema = z.infer<typeof createCatalogueSchema>;
+
+const updateCatalogueSchema = z.object({
 	name: z.string().optional(),
 	password: z.string().optional(),
 	id: z.number().optional(),
@@ -28,18 +30,18 @@ export const answers = {
 	alreadyOcupied: "Name is already ocupied",
 	catalogueNotBeenCreated: "Catalogue hasn't been created",
 	catalogueNotFound: "Catalogue not found",
-	provideNumber: "Provide a number",
 	notFound: "Not found",
+	unknown: "An unkown error"
 };
 
 catalogueController
 	.post(
 		"/",
 		hasRole("admin"),
-		zValidator("json", createCatalogue),
+		zValidator("json", createCatalogueSchema),
 		async (c) => {
 			try {
-				const body = await c.req.json();
+				const body = c.req.valid("json");
 				const resp = await service.createCatalogue(body);
 
 				return c.json(resp, 201);
@@ -54,10 +56,8 @@ catalogueController
 			}
 		},
 	)
-	.get("/:id", async (c) => {
-		const id = Number(c.req.param().id);
-
-		if (isNaN(id)) return;
+	.get("/:id{[0-9]+}", zValidator('param', z.number()), async (c) => {
+		const id = Number(c.req.param('id'));
 		const resp = await service.getCatalogue(id);
 
 		if (resp) {
@@ -66,11 +66,9 @@ catalogueController
 			return c.json({ msg: answers.notFound }, 404);
 		}
 	})
-	.get("/:id/products", async (c) => {
+	.get("/:id{[0-9]+}/products", async (c) => {
 		const { skip, take } = c.req.queries();
-		const id = Number(c.req.param().id);
-
-		if (isNaN(id)) return c.json({ msg: answers.provideNumber }, 400);
+		const id = Number(c.req.param('id'));
 		const cat = await service.getCatalogue(id);
 
 		if (cat) {
@@ -80,53 +78,46 @@ catalogueController
 			if (take && !isNaN(Number(take))) tk = Number(take);
 
 			const productsList = await service.getProducts(cat.id, sk, tk);
-
 			return c.json(productsList);
 		} else {
 			return c.json({ msg: answers.notFound }, 404);
 		}
 	})
 	.put(
-		"/:id",
+		"/:id{[0-9]+}",
 		hasRole("admin"),
-		zValidator("json", updateCatalogue),
+		zValidator("json", updateCatalogueSchema),
 		async (c) => {
 			try {
-				const id = Number(c.req.param().id);
-
-				if (isNaN(id)) return;
+				const id = Number(c.req.param('id'));
 				const catalogue = await service.getCatalogue(id);
-				const body = await c.req.json();
+				const body = c.req.valid("json");
 
-				if (!catalogue) return c.json({ msg: "Not found catalogue" }, 404);
+				if (!catalogue) return c.json({ msg: answers.notFound }, 404);
 
 				const resp = await service.updateCatalogue(catalogue.id, body);
 				if (resp) return c.json(resp, 200);
 			} catch (e) {
-				const err = e as Error;
-				return c.json({ msg: "Unkown err" }, 500);
+				return c.json({ msg: answers.unknown }, 500);
 			}
 		},
 	)
-	.delete("/:id", hasRole("admin"), async (c) => {
+	.delete("/:id{[0-9]+}", hasRole("admin"), async (c) => {
 		try {
-			const id = Number(c.req.param().id);
-
-			if (isNaN(id)) return;
+			const id = Number(c.req.param('id'));
 
 			const catalogue = await service.getCatalogue(id);
-			if (!catalogue) throw new Error(answers.catalogueNotFound);
+			if (!catalogue) return c.notFound();
 
 			const resp = await service.deleteCatalogue(catalogue.id);
 			if (resp) return c.json({ ok: true }, 200);
 
-			throw new Error(answers.catalogueNotFound);
+			return c.notFound();
 		} catch (e) {
 			const err = e as Error;
 			let status: ContentfulStatusCode = 500;
 
 			if (err.message === answers.forbidden) status = 403;
-			if (err.message === answers.catalogueNotFound) status = 404;
 
 			if (status >= 500) console.log(err);
 			return c.json({ msg: err.message }, status);

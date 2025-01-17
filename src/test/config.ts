@@ -4,7 +4,7 @@ export const pdScheme = z.object({
 	name: z.string(),
 	photos: z.array(z.string()),
 	description: z.string(),
-	href: z.string(),
+	slug: z.string(),
 	status: z.enum(["available", "runningOut", "unavailable"]),
 	stockQuantity: z.number(),
 	price: z.number(),

@@ -16,7 +16,7 @@ CREATE TABLE "Catalogue" (
     "logo" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "href" TEXT NOT NULL
+    "slug" TEXT NOT NULL
 );
 
 -- CreateTable
@@ -25,7 +25,7 @@ CREATE TABLE "Product" (
     "name" TEXT NOT NULL,
     "photos" JSONB NOT NULL,
     "description" TEXT NOT NULL,
-    "href" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "rate" INTEGER NOT NULL DEFAULT 0,
     "status" TEXT NOT NULL DEFAULT 'available',
@@ -100,13 +100,13 @@ CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 CREATE UNIQUE INDEX "Catalogue_name_key" ON "Catalogue"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Catalogue_href_key" ON "Catalogue"("href");
+CREATE UNIQUE INDEX "Catalogue_href_key" ON "Catalogue"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_name_key" ON "Product"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Product_href_key" ON "Product"("href");
+CREATE UNIQUE INDEX "Product_href_key" ON "Product"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Shipping_track_key" ON "Shipping"("track");

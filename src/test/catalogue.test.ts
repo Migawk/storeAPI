@@ -13,7 +13,7 @@ const ctScheme = z.object({
 	logo: z.string(),
 	description: z.string(),
 	createdAt: z.string(),
-	href: z.string(),
+	slug: z.string(),
 });
 
 afterAll(async () => {
@@ -38,7 +38,7 @@ describe("Catalogue", () => {
 			logo: "./laptop.jpeg",
 			description: "Movable Laptops",
 			createdAt: new Date(),
-			href: "laptops",
+			slug: "laptops",
 		};
 
 		const resp = await app.request("/catalogue", {

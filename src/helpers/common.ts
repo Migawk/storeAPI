@@ -9,14 +9,14 @@ export function verifyPassword(p: string, h: string) {
 }
 
 export function createToken(body: Partial<User>) {
-	const salt = process.env.TOKEN_SALT;
-	if (!salt) throw new Error("Not provided salt into env variables");
+	const salt = process.env.TOKEN_SECRET;
+	if (!salt) throw new Error("Not provided secret into env variables");
 
 	return sign(body, salt);
 }
 export function verifyToken(token: string) {
-	const salt = process.env.TOKEN_SALT;
-	if (!salt) throw new Error("Not provided salt into env variables");
+	const salt = process.env.TOKEN_SECRET;
+	if (!salt) throw new Error("Not provided secret into env variables");
 
 	return verify(token, salt);
 }

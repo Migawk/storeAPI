@@ -1,11 +1,12 @@
-import { Order, PrismaClient } from "@prisma/client";
-import { answers } from "../controller/order";
+import { type Order } from "@prisma/client";
+import { answers, TCreateOrderSchema } from "../controller/order";
+import db from "../helpers/db";
 
-const { order } = new PrismaClient();
+const { order } = db;
 
 export async function createOrder(
 	userId: number,
-	orderBody: Omit<Order, "userId">,
+	orderBody: TCreateOrderSchema,
 ) {
 	const resp = await order.create({
 		data: {

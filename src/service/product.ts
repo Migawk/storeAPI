@@ -1,15 +1,16 @@
-import { PrismaClient, Product, Review } from "@prisma/client";
-import { answers } from "../controller/product";
+import { type Review } from "@prisma/client";
+import { answers, TCreateProductSchema, TUpdateProductSchema } from "../controller/product";
+import db from "../helpers/db";
 
-const { product, review } = new PrismaClient();
+const { product, review } = db;
 
 export async function createProduct(
 	userId: number,
-	productBody: Omit<Product, "userId">,
+	productBody: TCreateProductSchema,
 ) {
 	const doesExist = await product.findMany({
 		where: {
-			OR: [{ name: productBody.name }, { href: productBody.href }],
+			OR: [{ name: productBody.name }, { slug: productBody.slug }],
 		},
 	});
 	if (doesExist.length) throw new Error(answers.alreadyOcupied);
@@ -41,15 +42,12 @@ export function getProductByName(name: string) {
 		},
 	});
 }
-export async function updateProduct(id: number, body: Product) {
+export async function updateProduct(id: number, body: TUpdateProductSchema) {
 	await product.update({
 		where: {
 			id,
 		},
-		data: {
-			...body,
-			photos: body.photos!,
-		},
+		data: body
 	});
 	return product.findUnique({ where: { id } });
 }

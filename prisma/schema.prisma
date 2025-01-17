@@ -32,7 +32,7 @@ model Catalogue {
   logo        String
   description String
   createdAt   DateTime @default(now())
-  href        String   @unique
+  slug        String   @unique
 
   interestedUsers User[]
   products        Product[]
@@ -43,7 +43,7 @@ model Product {
   name        String   @unique
   photos      Json
   description String
-  href        String   @unique
+  slug        String   @unique
   createdAt   DateTime @default(now())
   rate        Int      @default(0)
 

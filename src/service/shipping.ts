@@ -1,19 +1,18 @@
-import { Shipping, PrismaClient } from "@prisma/client";
-import { answers } from "../controller/shipping";
+import { type Shipping } from "@prisma/client";
+import { answers, TCreatedShippingSchema } from "../controller/shipping";
+import db from "../helpers/db";
 
-const { shipping } = new PrismaClient();
+const { shipping } = db;
 
 export async function createShipping(
 	userId: number,
-	orderId: number,
-	shippingBody: Omit<Shipping, "userId" | "id" | "orderId">,
+	shippingBody: TCreatedShippingSchema,
 ) {
 	try {
 		const resp = await shipping.create({
 			data: {
 				...shippingBody,
 				userId,
-				orderId,
 			},
 		});
 

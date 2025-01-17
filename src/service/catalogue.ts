@@ -1,12 +1,13 @@
-import { PrismaClient, Catalogue } from "@prisma/client";
-import { answers } from "../controller/catalogue";
+import { type Catalogue } from "@prisma/client";
+import { answers, TCreateCatalogueSchema } from "../controller/catalogue";
+import db from "../helpers/db";
 
-const { catalogue, product } = new PrismaClient();
+const { catalogue, product } = db;
 
-export async function createCatalogue(catalogueBody: Catalogue) {
+export async function createCatalogue(catalogueBody: TCreateCatalogueSchema) {
 	const doesExist = await catalogue.findMany({
 		where: {
-			OR: [{ name: catalogueBody.name }, { href: catalogueBody.href }],
+			OR: [{ name: catalogueBody.name }, { slug: catalogueBody.slug }],
 		},
 	});
 	if (doesExist.length) throw new Error(answers.alreadyOcupied);

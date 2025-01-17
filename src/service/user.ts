@@ -1,6 +1,6 @@
 import { PrismaClient, User } from "@prisma/client";
 import { createToken, hash, verifyPassword } from "../helpers/common";
-import { answers } from "../controller/user";
+import { answers, TLogIn } from "../controller/user";
 
 const { user } = new PrismaClient({
 	omit: {
@@ -80,12 +80,12 @@ export function deleteUser(id: number) {
 	return user.delete({ where: { id } });
 }
 export async function login(
-	userBody: Pick<User, "email" | "name" | "password">,
+	userBody: TLogIn,
 ) {
 	let search: { email: string } | { name: string };
 
-	if (userBody.email) search = { email: userBody.email };
-	if (userBody.name) search = { name: userBody.name };
+	if ("email" in userBody) search = { email: userBody.email };
+	if ("name" in userBody) search = { name: userBody.name };
 
 	const usr = await user.findUnique({
 		where: search!,
