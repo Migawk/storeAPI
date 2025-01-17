@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "bun:test";
 import * as config from "./config";
 import app from "..";
 import { z } from "zod";
-import { Order, Product, Shipping } from "@prisma/client";
+import { Order, Shipping } from "@prisma/client";
 
 let shippObj: Order;
 let ordId: number;

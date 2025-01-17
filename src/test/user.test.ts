@@ -1,20 +1,19 @@
 import { expect, describe, afterAll, it } from "bun:test";
 import app from "..";
 import { z } from "zod";
-import { PrismaClient } from "@prisma/client";
+import db from "../helpers/db";
 
+const name = "teswoeo";
 afterAll(async () => {
-	const pr = new PrismaClient();
-
 	const val = {
-		name: "migwa",
+		name,
 	};
 
-	const doesExist = await pr.user.findUnique({
+	const doesExist = await db.user.findUnique({
 		where: val,
 	});
 	if (!doesExist) return;
-	await pr.user.delete({
+	await db.user.delete({
 		where: val,
 	});
 });
@@ -24,7 +23,7 @@ let token = "";
 describe("User", () => {
 	it("POST /user", async () => {
 		const usr = {
-			name: "migwa",
+			name,
 			password: "123",
 		};
 		const res = await app.request("/user", {
@@ -43,7 +42,7 @@ describe("User", () => {
 			}),
 			token: z.string(),
 		});
-
+		
 		expect(res.status).toBe(201);
 
 		const body = await res.json();

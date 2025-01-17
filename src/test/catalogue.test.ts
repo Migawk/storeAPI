@@ -1,8 +1,9 @@
 import { describe, afterAll, it, expect } from "bun:test";
 import app from "..";
-import { PrismaClient, Catalogue } from "@prisma/client";
+import { Catalogue } from "@prisma/client";
 import * as config from "./config";
 import { z } from "zod";
+import db from "../helpers/db";
 
 const name = "keyboard";
 let catalogue: Catalogue;
@@ -17,17 +18,15 @@ const ctScheme = z.object({
 });
 
 afterAll(async () => {
-	const pr = new PrismaClient();
-
 	const val = {
 		name,
 	};
 
-	const doesExist = await pr.user.findUnique({
+	const doesExist = await db.user.findUnique({
 		where: val,
 	});
 	if (!doesExist) return;
-	await pr.user.delete({
+	await db.user.delete({
 		where: val,
 	});
 });
@@ -62,7 +61,6 @@ describe("Catalogue", () => {
 	});
 	it(`GET /catalogue/:id`, async () => {
 		const scheme = ctScheme;
-
 		const resp = await app.request(`/catalogue/${catalogue.id}`);
 		const body = await resp.json();
 
@@ -71,7 +69,6 @@ describe("Catalogue", () => {
 	});
 	it(`GET /catalogue/:id/products`, async () => {
 		const scheme = z.array(config.pdScheme);
-
 		const resp = await app.request(`/catalogue/${catalogue.id}/products`);
 		const body = await resp.json();
 

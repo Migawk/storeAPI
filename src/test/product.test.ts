@@ -1,24 +1,23 @@
 import { describe, afterAll, it, expect } from "bun:test";
 import app from "..";
-import { PrismaClient, Product } from "@prisma/client";
+import { Product } from "@prisma/client";
 import * as config from "./config";
 import { z } from "zod";
+import db from "../helpers/db";
 
 const name = "keyboard";
 let product: Product;
 
 afterAll(async () => {
-	const pr = new PrismaClient();
-
 	const val = {
 		name,
 	};
 
-	const doesExist = await pr.user.findUnique({
+	const doesExist = await db.user.findUnique({
 		where: val,
 	});
 	if (!doesExist) return;
-	await pr.user.delete({
+	await db.user.delete({
 		where: val,
 	});
 });
@@ -33,7 +32,7 @@ describe("Product", () => {
 			status: "available",
 			stockQuantity: 10,
 			price: 10000,
-			catalogueId: 1,
+			catalogueId: 6,
 		};
 
 		const resp = await app.request("/product", {

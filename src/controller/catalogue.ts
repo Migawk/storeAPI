@@ -56,7 +56,7 @@ catalogueController
 			}
 		},
 	)
-	.get("/:id{[0-9]+}", zValidator('param', z.number()), async (c) => {
+	.get("/:id{[0-9]+}", async (c) => {
 		const id = Number(c.req.param('id'));
 		const resp = await service.getCatalogue(id);
 
